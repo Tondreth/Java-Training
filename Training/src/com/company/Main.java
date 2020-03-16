@@ -1,36 +1,47 @@
 package com.company;
 
+import java.sql.*;
+
 public class Main {
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws ClassNotFoundException, SQLException {
 
-        CurrentAccount newCurrAcc = new CurrentAccount(
-            1,
-            "Jacob",
-            "Stone",
-            397.53,
-            3.7F
+        String myDriver = "org.h2.Driver";
+        String myUrl = "jdbc:h2:tcp://localhost/~/test";
+        Class.forName(myDriver);
+        Connection conn = DriverManager.getConnection(myUrl, "SA", "");
+
+        CurrentAccount newAccount = new CurrentAccount(
+                7,
+                "oiLuisa",
+                "Bones",
+                775,
+                3.3F
         );
 
-        DepositAccount newDepAcc = new DepositAccount(
-            2,
-            "Jessica",
-            "Pierce",
-            737,
-            5.3F
-        );
+        String addNewAccountQuery = "INSERT INTO account (" +
+            "account_number_id," +
+            "first_name," +
+            "last_name," +
+            "opening_balance," +
+            "interest_rate," +
+            "account_type," +
+            "current_balance," +
+            "opening_date) VALUES ("
+                + newAccount.getAccountNumber() + ","
+                + "'"+newAccount.getAccountOwnerFirstName()+"',"
+                + "'"+newAccount.getAccountOwnerLastName()+"',"
+                + newAccount.getOpeningBalance() + ","
+                + newAccount.getInterestRate() + ","
+                + "'"+newAccount.getAccountType()+"',"
+                + newAccount.getCurrentBalance() + ","
+                + "'"+newAccount.getOpeningDate()+"')";
 
-        newCurrAcc.deposit(7777977);
-        newCurrAcc.withdraw(7777777);
+        Statement st = conn.createStatement();
 
-        newDepAcc.deposit(977);
-        newDepAcc.withdraw(777);
+        st.execute(addNewAccountQuery);
 
-        System.out.print(newCurrAcc.getAccountInfo() +
-                "\n-----------------------------------\n"
-                + newDepAcc.getAccountInfo()) ;
 
-        
     } // end of main method
 
 } // end of Main Class

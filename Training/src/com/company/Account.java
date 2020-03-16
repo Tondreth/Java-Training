@@ -47,15 +47,8 @@ public abstract class Account implements Serializable {
         this.currentBalance = getCurrentBalance() - withdrawAmount;
     }
 
-    public String getAccountInfo(){
-        return
-            "Account Number: " + getAccountNumber() + "\n"
-            + "Account Owner: " + getAccountOwnerFirstName() + " " + getAccountOwnerLastName() + "\n"
-            + "Opening Balance: " + getOpeningBalance() + "\n"
-            + "Current Balance: " + getCurrentBalance() + "\n"
-            + "Interest Rate: " + getInterestRate() + " %\n"
-            + "Account Type: " + accountType.toString().toLowerCase() + "\n"
-            + "Opening Date: " + getOpeningDate();
+    public String getAccountType(){
+        return accountType.toString().toLowerCase();
     }
 
     public String getOpeningDate() {
