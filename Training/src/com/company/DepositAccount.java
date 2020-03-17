@@ -2,8 +2,6 @@ package com.company;
 
 public class DepositAccount extends Account{
 
-    private String termDate;
-
     public DepositAccount(int accountNumber,
                           String accountOwnerFirstName,
                           String accountOwnerLastName,
@@ -17,13 +15,4 @@ public class DepositAccount extends Account{
                 AccountType.DEPOSIT);
     }
 
-    @Override
-    public void deposit(double depositAmount) {
-        super.deposit(depositAmount);
-    }
-
-    @Override
-    public void withdraw(double withdrawAmount) {
-        super.withdraw(withdrawAmount);
-    }
 }

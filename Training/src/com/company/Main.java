@@ -1,46 +1,30 @@
 package com.company;
 
-import java.sql.*;
+import java.sql.SQLException;
 
 public class Main {
 
-    public static void main(String[] args) throws ClassNotFoundException, SQLException {
+    public static void main(String[] args) throws SQLException, ClassNotFoundException {
 
-        String myDriver = "org.h2.Driver";
-        String myUrl = "jdbc:h2:tcp://localhost/~/test";
-        Class.forName(myDriver);
-        Connection conn = DriverManager.getConnection(myUrl, "SA", "");
-
-        CurrentAccount newAccount = new CurrentAccount(
-                7,
-                "oiLuisa",
-                "Bones",
-                775,
-                3.3F
+        CurrentAccount newCurrentAccount = new CurrentAccount(
+                1,
+                "Jaina",
+                "Proudmoore",
+                379.3,
+                3.7F
         );
 
-        String addNewAccountQuery = "INSERT INTO account (" +
-            "account_number_id," +
-            "first_name," +
-            "last_name," +
-            "opening_balance," +
-            "interest_rate," +
-            "account_type," +
-            "current_balance," +
-            "opening_date) VALUES ("
-                + newAccount.getAccountNumber() + ","
-                + "'"+newAccount.getAccountOwnerFirstName()+"',"
-                + "'"+newAccount.getAccountOwnerLastName()+"',"
-                + newAccount.getOpeningBalance() + ","
-                + newAccount.getInterestRate() + ","
-                + "'"+newAccount.getAccountType()+"',"
-                + newAccount.getCurrentBalance() + ","
-                + "'"+newAccount.getOpeningDate()+"')";
+        DepositAccount newDepositAccount = new DepositAccount(
+                2,
+                "John",
+                "Doe",
+                375,
+                9.7F
+        );
 
-        Statement st = conn.createStatement();
-
-        st.execute(addNewAccountQuery);
-
+        newDepositAccount.insertQuery();
+        newCurrentAccount.insertQuery();
+        newCurrentAccount.selectQuery(2);
 
     } // end of main method
 
