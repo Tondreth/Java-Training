@@ -7,12 +7,17 @@ public class CurrentAccount extends Account{
                           String accountOwnerLastName,
                           double openingBalance,
                           float interestRate) {
-        super(accountNumber,
-                accountOwnerFirstName,
-                accountOwnerLastName,
-                openingBalance,
-                interestRate,
-                AccountType.CURRENT);
+
+        this.setAccountNumber(accountNumber);
+        this.setAccountOwnerFirstName(accountOwnerFirstName);
+        this.setAccountOwnerLastName(accountOwnerLastName);
+        this.setOpeningBalance(openingBalance);
+        this.setInterestRate(interestRate);
+        this.setType("current");
+        this.setCurrentBalance(getOpeningBalance());
+        this.setOpeningDate(getOpeningDate());
+        this.setDefaultTermDate(getDefaultTermDate());
+
     }
 
 }

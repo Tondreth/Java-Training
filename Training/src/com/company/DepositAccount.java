@@ -7,12 +7,17 @@ public class DepositAccount extends Account{
                           String accountOwnerLastName,
                           double openingBalance,
                           float interestRate) {
-        super(accountNumber,
-                accountOwnerFirstName,
-                accountOwnerLastName,
-                openingBalance,
-                interestRate,
-                AccountType.DEPOSIT);
+
+        this.setAccountNumber(accountNumber);
+        this.setAccountOwnerFirstName(accountOwnerFirstName);
+        this.setAccountOwnerLastName(accountOwnerLastName);
+        this.setOpeningBalance(openingBalance);
+        this.setInterestRate(interestRate);
+        this.setType("deposit");
+        this.setCurrentBalance(getOpeningBalance());
+        this.setOpeningDate(getOpeningDate());
+        this.setDefaultTermDate(getDefaultTermDate());
+
     }
 
 }
