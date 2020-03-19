@@ -3,6 +3,8 @@ package com.company;
 import java.sql.*;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.Arrays;
 
 public class Account{
 
@@ -16,10 +18,12 @@ public class Account{
     private String type;
 
     private DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy hh:mm:ss");
+
     private LocalDateTime getCurrentDate = LocalDateTime.now();
+    private String currentDate = formatter.format(getCurrentDate);
     private String openingDate = formatter.format(getCurrentDate);
     private String defaultTermDate = formatter.format(getCurrentDate.plusDays(1));
-
+    private String depositTermDate = formatter.format(getCurrentDate.plusDays(10));
 
     protected int getAccountNumber() {
         return accountNumber;
@@ -93,35 +97,97 @@ public class Account{
         this.defaultTermDate = defaultTermDate;
     }
 
+    protected String getDepositTermDate() {
+        return depositTermDate;
+    }
+
+    protected String getCurrentDate() {
+        return currentDate;
+    }
+
     protected final String myDriver = "org.h2.Driver";
     protected final String myUrl = "jdbc:h2:tcp://localhost/~/test";
 
-    protected void deposit(double depositAmount) throws ClassNotFoundException, SQLException {
+    protected void transaction(int fromAccId,
+                               int toAccId,
+                               String action,
+                               double amount) throws ClassNotFoundException, SQLException {
 
-        Class.forName(myDriver);
-        Connection conn = DriverManager.getConnection(myUrl, "SA", "");
+        ArrayList<String> transaction = new ArrayList<>(Arrays.asList("deposit", "withdraw"));
 
-        PreparedStatement getBalance = conn.prepareStatement("SELECT current_balance " +
-                "FROM account " +
-                "WHERE account_number_id = " + getAccountNumber());
+        if (amount > 0 && transaction.contains(action)) {
 
-        getBalance.execute();
+            Class.forName(myDriver);
+            Connection conn = DriverManager.getConnection(myUrl, "SA", "");
 
-        while(getBalance.getResultSet().next()){
+            PreparedStatement getAccountInfo = conn.prepareStatement("SELECT * " +
+                    "FROM account " +
+                    "WHERE account_number_id = " + fromAccId);
 
-            double balance = getBalance.getResultSet().getDouble(1);
+            getAccountInfo.execute();
 
-            PreparedStatement deposit = conn.prepareStatement("UPDATE account " +
+            PreparedStatement addTransaction = conn.prepareStatement("INSERT " +
+                    "INTO transactions (" +
+                    "sender_id," +
+                    "sender_name," +
+                    "recipient_id," +
+                    "recipient_name," +
+                    "action," +
+                    "amount," +
+                    "date) VALUES (?,?,?,?,?,?,?)");
+
+            PreparedStatement depositOrWithdraw = conn.prepareStatement("UPDATE account " +
                     "SET current_balance = ?" +
-                    " WHERE account_number_id = " + getAccountNumber());
+                    " WHERE account_number_id = " + fromAccId);
 
-            deposit.setDouble(1, balance + depositAmount);
+            while (getAccountInfo.getResultSet().next()) {
 
-            deposit.execute();
+                addTransaction.setInt(1, getAccountInfo.getResultSet().getInt(1));
+                addTransaction.setString(2, getAccountInfo.getResultSet().getString(2)
+                        + " " + getAccountInfo.getResultSet().getString(3));
+                addTransaction.setInt(3, getAccountInfo.getResultSet().getInt(1));
+                addTransaction.setString(4, getAccountInfo.getResultSet().getString(2)
+                        + " " + getAccountInfo.getResultSet().getString(3));
+                addTransaction.setString(5, action);
+                addTransaction.setDouble(6, amount);
+                addTransaction.setString(7, getCurrentDate());
 
+                if (getAccountInfo.getResultSet().getString(6).equals("deposit") &&
+                        (!getCurrentDate().equals(getAccountInfo.getResultSet().getString(9)))){
+
+                    System.out.println("Deposit accounts can only make transactions on term date.\n" +
+                            "Term date for this account is: " +
+                            getAccountInfo.getResultSet().getString(9));
+
+                }else{
+
+                    switch (action){
+
+                        case "deposit":
+                            depositOrWithdraw.setDouble(1,
+                                    getAccountInfo.getResultSet().getDouble(7) + amount);
+                            depositOrWithdraw.execute();
+                            addTransaction.execute();
+                            break;
+
+                        case "withdraw":
+                            depositOrWithdraw.setDouble(1,
+                                    getAccountInfo.getResultSet().getDouble(7) - amount);
+                            depositOrWithdraw.execute();
+                            addTransaction.execute();
+                            break;
+
+                    }
+
+                }
+
+            }
+
+            conn.close();
+
+        } else {
+            System.out.println("Error: Invalid parameters for transaction.");
         }
-
-        conn.close();
 
     }
 
@@ -154,7 +220,7 @@ public class Account{
 
     }
 
-    protected void insertQuery() throws ClassNotFoundException, SQLException {
+    protected void insertAccountQuery() throws ClassNotFoundException, SQLException {
 
         Class.forName(myDriver);
         Connection conn = DriverManager.getConnection(myUrl, "SA", "");

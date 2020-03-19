@@ -16,7 +16,7 @@ public class DepositAccount extends Account{
         this.setType("deposit");
         this.setCurrentBalance(getOpeningBalance());
         this.setOpeningDate(getOpeningDate());
-        this.setDefaultTermDate(getDefaultTermDate());
+        this.setDefaultTermDate(getDepositTermDate());
 
     }
 

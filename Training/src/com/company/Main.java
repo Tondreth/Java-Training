@@ -10,26 +10,26 @@ public class Main {
         db.createObjectFromDB(1);
 
         CurrentAccount newCurrentAccount = new CurrentAccount(
-                11,
-                db.getAccountOwnerFirstName(),
+                1,
+                "Jessica",
                 "Hey",
-                db.getOpeningBalance(),
-                db.getInterestRate()
+                537,
+                3.7F
         );
 
         DepositAccount newDepositAccount = new DepositAccount(
-                10,
-                "Jack",
+                2,
+                db.getAccountOwnerFirstName(),
                 db.getAccountOwnerLastName(),
-                db.getOpeningBalance(),
-                9.7F
+                735,
+                9.1F
         );
 
-//        newCurrentAccount.deposit(777);
+        newCurrentAccount.insertAccountQuery();
+        newDepositAccount.insertAccountQuery();
 
-        newDepositAccount.insertQuery();
-        newCurrentAccount.insertQuery();
-
+        db.transaction(1,1,"deposit", 777);
+        db.transaction(2,2,"withdraw", 333);
 
 
 
