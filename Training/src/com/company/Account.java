@@ -1,5 +1,10 @@
 package com.company;
 
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+
+import java.io.FileWriter;
+import java.io.IOException;
 import java.sql.*;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -113,7 +118,7 @@ public class Account{
                                String action,
                                double amount) throws ClassNotFoundException, SQLException {
 
-        ArrayList<String> transaction = new ArrayList<>(Arrays.asList("deposit", "withdraw"));
+        ArrayList<String> transaction = new ArrayList<>(Arrays.asList("deposit", "withdraw", "transfer"));
 
         if (amount > 0 && transaction.contains(action)) {
 
@@ -123,8 +128,12 @@ public class Account{
             PreparedStatement getAccountInfo = conn.prepareStatement("SELECT * " +
                     "FROM account " +
                     "WHERE account_number_id = " + fromAccId);
-
             getAccountInfo.execute();
+
+            PreparedStatement getRecipientInfo = conn.prepareStatement("SELECT * " +
+                    "FROM account " +
+                    "WHERE account_number_id = " + toAccId);
+            getRecipientInfo.execute();
 
             PreparedStatement addTransaction = conn.prepareStatement("INSERT " +
                     "INTO transactions (" +
@@ -138,19 +147,11 @@ public class Account{
 
             PreparedStatement depositOrWithdraw = conn.prepareStatement("UPDATE account " +
                     "SET current_balance = ?" +
-                    " WHERE account_number_id = " + fromAccId);
+                    " WHERE account_number_id = ?");
 
             while (getAccountInfo.getResultSet().next()) {
 
-                addTransaction.setInt(1, getAccountInfo.getResultSet().getInt(1));
-                addTransaction.setString(2, getAccountInfo.getResultSet().getString(2)
-                        + " " + getAccountInfo.getResultSet().getString(3));
-                addTransaction.setInt(3, getAccountInfo.getResultSet().getInt(1));
-                addTransaction.setString(4, getAccountInfo.getResultSet().getString(2)
-                        + " " + getAccountInfo.getResultSet().getString(3));
-                addTransaction.setString(5, action);
-                addTransaction.setDouble(6, amount);
-                addTransaction.setString(7, getCurrentDate());
+                depositOrWithdraw.setInt(2, fromAccId);
 
                 if (getAccountInfo.getResultSet().getString(6).equals("deposit") &&
                         (!getCurrentDate().equals(getAccountInfo.getResultSet().getString(9)))){
@@ -159,7 +160,19 @@ public class Account{
                             "Term date for this account is: " +
                             getAccountInfo.getResultSet().getString(9));
 
-                }else{
+                }else if(fromAccId == toAccId){
+
+                    addTransaction.setInt(1, getAccountInfo.getResultSet().getInt(1));
+                    addTransaction.setString(2,
+                            getAccountInfo.getResultSet().getString(2)
+                            + " " + getAccountInfo.getResultSet().getString(3));
+                    addTransaction.setInt(3, getAccountInfo.getResultSet().getInt(1));
+                    addTransaction.setString(4,
+                            getAccountInfo.getResultSet().getString(2)
+                            + " " + getAccountInfo.getResultSet().getString(3));
+                    addTransaction.setString(5, action);
+                    addTransaction.setDouble(6, amount);
+                    addTransaction.setString(7, getCurrentDate());
 
                     switch (action){
 
@@ -179,6 +192,37 @@ public class Account{
 
                     }
 
+                } else if (fromAccId != toAccId && action.equals("transfer")){
+
+                    while (getRecipientInfo.getResultSet().next()){
+
+                        depositOrWithdraw.setDouble(1,
+                                getAccountInfo.getResultSet().getDouble(7) - amount);
+                        depositOrWithdraw.execute();
+
+                        depositOrWithdraw.setInt(2, toAccId);
+                        depositOrWithdraw.setDouble(1,
+                                (getRecipientInfo.getResultSet().getDouble(7) + amount)
+                        + ((getRecipientInfo.getResultSet().getDouble(7) + amount) *
+                                        (getRecipientInfo.getResultSet().getDouble(5)/100)));
+                        depositOrWithdraw.execute();
+
+                        addTransaction.setInt(1, getAccountInfo.getResultSet().getInt(1));
+                        addTransaction.setString(2,
+                                getAccountInfo.getResultSet().getString(2)
+                                        + " " + getAccountInfo.getResultSet().getString(3));
+                        addTransaction.setInt(3, getRecipientInfo.getResultSet().getInt(1));
+                        addTransaction.setString(4,
+                                getRecipientInfo.getResultSet().getString(2)
+                                        + " " + getAccountInfo.getResultSet().getString(3));
+                        addTransaction.setString(5, action);
+                        addTransaction.setDouble(6, amount);
+                        addTransaction.setString(7, getCurrentDate());
+
+                        addTransaction.execute();
+
+                    }
+
                 }
 
             }
@@ -186,7 +230,7 @@ public class Account{
             conn.close();
 
         } else {
-            System.out.println("Error: Invalid parameters for transaction.");
+            System.out.println("Error: Invalid parameters for this transaction.");
         }
 
     }
@@ -257,6 +301,35 @@ public class Account{
 
         conn.close();
 
+    }
+
+    protected void writeToFile(){
+        JSONObject accountInfo = new JSONObject();
+
+        accountInfo.put("account_number_id" , this.getAccountNumber());
+        accountInfo.put("first_name" , this.getAccountOwnerFirstName());
+        accountInfo.put("last_name" , this.getAccountOwnerLastName());
+        accountInfo.put("opening_balance" , this.getOpeningBalance());
+        accountInfo.put("interest_rate" , this.getInterestRate());
+        accountInfo.put("account_type" , this.getType());
+        accountInfo.put("current_balance" , this.getCurrentBalance());
+        accountInfo.put("opening_date" , this.getOpeningDate());
+        accountInfo.put("term_date" , this.getDefaultTermDate());
+
+        JSONArray accountsList = new JSONArray();
+
+        accountsList.add(accountInfo);
+
+        try (FileWriter file = new FileWriter(
+                "C:\\Users\\Nikolay.Nikolov\\IdeaProjects\\Training\\database\\accountsInfo.json")) {
+
+            System.out.println(accountsList);
+            file.write(accountInfo.toJSONString());
+            file.flush();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
 }
