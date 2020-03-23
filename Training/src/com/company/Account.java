@@ -1,10 +1,7 @@
 package com.company;
 
-import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
-import java.io.FileWriter;
-import java.io.IOException;
 import java.sql.*;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -303,33 +300,41 @@ public class Account{
 
     }
 
-    protected void writeToFile(){
+    @SuppressWarnings("unchecked")
+    protected JSONObject createJsonObject(){
+
         JSONObject accountInfo = new JSONObject();
 
-        accountInfo.put("account_number_id" , this.getAccountNumber());
-        accountInfo.put("first_name" , this.getAccountOwnerFirstName());
-        accountInfo.put("last_name" , this.getAccountOwnerLastName());
-        accountInfo.put("opening_balance" , this.getOpeningBalance());
-        accountInfo.put("interest_rate" , this.getInterestRate());
-        accountInfo.put("account_type" , this.getType());
-        accountInfo.put("current_balance" , this.getCurrentBalance());
-        accountInfo.put("opening_date" , this.getOpeningDate());
-        accountInfo.put("term_date" , this.getDefaultTermDate());
+        accountInfo.put("account_number_id" , getAccountNumber());
+        accountInfo.put("first_name" , getAccountOwnerFirstName());
+        accountInfo.put("last_name" , getAccountOwnerLastName());
+        accountInfo.put("opening_balance" , getOpeningBalance());
+        accountInfo.put("interest_rate" , getInterestRate());
+        accountInfo.put("account_type" , getType());
+        accountInfo.put("current_balance" , getCurrentBalance());
+        accountInfo.put("opening_date" , getOpeningDate());
+        accountInfo.put("term_date" , getDefaultTermDate());
 
-        JSONArray accountsList = new JSONArray();
+        JSONObject account = new JSONObject();
+        account.put("account", accountInfo);
 
-        accountsList.add(accountInfo);
+        return account;
 
-        try (FileWriter file = new FileWriter(
-                "C:\\Users\\Nikolay.Nikolov\\IdeaProjects\\Training\\database\\accountsInfo.json")) {
+    }
 
-            System.out.println(accountsList);
-            file.write(accountInfo.toJSONString());
-            file.flush();
+    protected void readAccountsFromFile(JSONObject account){
 
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        JSONObject accountObject = (JSONObject) account.get("account");
+
+        String firstName = (String) accountObject.get("first_name");
+        System.out.println(firstName);
+
+        String lastName = (String) accountObject.get("lastName");
+        System.out.println(lastName);
+
+        Double currentBalance = (Double) accountObject.get("current_balance");
+        System.out.println(currentBalance);
+
     }
 
 }
