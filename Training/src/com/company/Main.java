@@ -34,10 +34,10 @@ public class Main {
         );
 
         DepositAccount depositAccountJessica = new DepositAccount(
-                4,
+                5,
                 db.getAccountOwnerFirstName(),
                 db.getAccountOwnerLastName(),
-                34457,
+                33333,
                 9.3F
         );
 
@@ -45,28 +45,37 @@ public class Main {
 //        newDepositAccount.insertAccountQuery();
 //        depositAccountJessica.insertAccountQuery();
 
-
         JSONParser jsonParser = new JSONParser();
-
-//        JSONArray accountsList = new JSONArray();
-//        accountsList.add(newCurrentAccount.createJsonObject());
-//        accountsList.add(newDepositAccount.createJsonObject());
-//        accountsList.add(depositAccountJessica.createJsonObject());
 
         try (FileReader fileReader = new FileReader(
                 "C:\\Users\\Nikolay.Nikolov\\IdeaProjects\\Training\\database\\accountsInfo.json")){
 
             Object jsonAccount = jsonParser.parse(fileReader);
             JSONArray accountList = (JSONArray) jsonAccount;
-            System.out.println(accountList);
 
             accountList.forEach(account -> db.readAccountsFromFile( (JSONObject) account ));
 
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (ParseException e) {
+            accountList.add(depositAccountJessica.createJsonObject());
+
+            try (FileWriter fileWriter = new FileWriter(
+                    "C:\\Users\\Nikolay.Nikolov\\IdeaProjects\\Training\\database\\accountsInfo.json")) {
+
+                System.out.println(accountList);
+                fileWriter.write(accountList.toJSONString());
+                fileWriter.flush();
+
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+        } catch (IOException | ParseException e) {
             e.printStackTrace();
         }
+
+//        JSONArray accountsList = new JSONArray();
+//        accountsList.add(newCurrentAccount.createJsonObject());
+//        accountsList.add(newDepositAccount.createJsonObject());
+//        accountsList.add(depositAccountJessica.createJsonObject());
 
 //        try (FileWriter fileWriter = new FileWriter(
 //                "C:\\Users\\Nikolay.Nikolov\\IdeaProjects\\Training\\database\\accountsInfo.json" ,

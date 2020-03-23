@@ -326,14 +326,25 @@ public class Account{
 
         JSONObject accountObject = (JSONObject) account.get("account");
 
+        long accId = (long) accountObject.get("account_number_id");
         String firstName = (String) accountObject.get("first_name");
-        System.out.println(firstName);
-
         String lastName = (String) accountObject.get("lastName");
-        System.out.println(lastName);
-
+        Double openingBalance = (Double) accountObject.get("opening_balance");
+        Double interestRate = (Double) accountObject.get("interest_rate");
+        String accountType = (String) accountObject.get("account_type");
         Double currentBalance = (Double) accountObject.get("current_balance");
-        System.out.println(currentBalance);
+        String openingDate = (String) accountObject.get("opening_date");
+        String termDate = (String) accountObject.get("term_date");
+
+        System.out.println(accId + "\n" +
+                firstName + "\n" +
+                lastName + "\n" +
+                openingBalance + "\n" +
+                interestRate + "\n" +
+                accountType + "\n" +
+                currentBalance + "\n" +
+                openingDate + "\n" +
+                termDate + "\n---------------------" );
 
     }
 
