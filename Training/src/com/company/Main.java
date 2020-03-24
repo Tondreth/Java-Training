@@ -1,21 +1,13 @@
 package com.company;
 
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
-import org.json.simple.parser.ParseException;
-
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
 import java.sql.SQLException;
 
 public class Main {
 
     public static void main(String[] args) throws SQLException, ClassNotFoundException {
 
-        Account db = new Account();
-        db.createObjectFromDB(1);
+        Account dataOperations = new Account();
+        dataOperations.createObjectFromDB(1);
 
         CurrentAccount newCurrentAccount = new CurrentAccount(
                 1,
@@ -34,10 +26,10 @@ public class Main {
         );
 
         DepositAccount depositAccountJessica = new DepositAccount(
-                5,
-                db.getAccountOwnerFirstName(),
-                db.getAccountOwnerLastName(),
-                33333,
+                77,
+                "Librarian",
+                "Joshua",
+                11111,
                 9.3F
         );
 
@@ -45,53 +37,14 @@ public class Main {
 //        newDepositAccount.insertAccountQuery();
 //        depositAccountJessica.insertAccountQuery();
 
-        JSONParser jsonParser = new JSONParser();
+//        dataOperations.transaction(1,2, "transfer", 3100);
 
-        try (FileReader fileReader = new FileReader(
-                "C:\\Users\\Nikolay.Nikolov\\IdeaProjects\\Training\\database\\accountsInfo.json")){
+        dataOperations.writeJsonObjectToFile(depositAccountJessica.createJsonObject());
 
-            Object jsonAccount = jsonParser.parse(fileReader);
-            JSONArray accountList = (JSONArray) jsonAccount;
+        dataOperations.jsonTransactions();
 
-            accountList.forEach(account -> db.readAccountsFromFile( (JSONObject) account ));
-
-            accountList.add(depositAccountJessica.createJsonObject());
-
-            try (FileWriter fileWriter = new FileWriter(
-                    "C:\\Users\\Nikolay.Nikolov\\IdeaProjects\\Training\\database\\accountsInfo.json")) {
-
-                System.out.println(accountList);
-                fileWriter.write(accountList.toJSONString());
-                fileWriter.flush();
-
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-
-        } catch (IOException | ParseException e) {
-            e.printStackTrace();
-        }
-
-//        JSONArray accountsList = new JSONArray();
-//        accountsList.add(newCurrentAccount.createJsonObject());
-//        accountsList.add(newDepositAccount.createJsonObject());
-//        accountsList.add(depositAccountJessica.createJsonObject());
-
-//        try (FileWriter fileWriter = new FileWriter(
-//                "C:\\Users\\Nikolay.Nikolov\\IdeaProjects\\Training\\database\\accountsInfo.json" ,
-//                true)) {
-//
-//            System.out.println(accountsList);
-//            fileWriter.write(accountsList.toJSONString());
-//            fileWriter.flush();
-//
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
-
-
-//        db.transaction(1,3,"transfer", 357);
-//        db.transaction(2,2,"withdraw", 333);
+//        System.out.print(dataOperations.getJsonObjectValue(
+//                newCurrentAccount.createJsonObject()).get("current_balance"));
 
     } // end of main method
 

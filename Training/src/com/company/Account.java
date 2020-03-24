@@ -1,7 +1,14 @@
 package com.company;
 
+import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
 
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.sql.*;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -19,12 +26,13 @@ public class Account{
 
     private String type;
 
-    private DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy hh:mm:ss");
+    private DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+//    private DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy hh:mm:ss");
 
     private LocalDateTime getCurrentDate = LocalDateTime.now();
     private String currentDate = formatter.format(getCurrentDate);
     private String openingDate = formatter.format(getCurrentDate);
-    private String defaultTermDate = formatter.format(getCurrentDate.plusDays(1));
+    private String defaultTermDate = formatter.format(getCurrentDate.plusDays(2));
     private String depositTermDate = formatter.format(getCurrentDate.plusDays(10));
 
     protected int getAccountNumber() {
@@ -110,12 +118,14 @@ public class Account{
     protected final String myDriver = "org.h2.Driver";
     protected final String myUrl = "jdbc:h2:tcp://localhost/~/test";
 
+    protected final ArrayList<String> transaction =
+            new ArrayList<>(Arrays.asList("deposit", "withdraw", "transfer"));
+
+
     protected void transaction(int fromAccId,
                                int toAccId,
                                String action,
                                double amount) throws ClassNotFoundException, SQLException {
-
-        ArrayList<String> transaction = new ArrayList<>(Arrays.asList("deposit", "withdraw", "transfer"));
 
         if (amount > 0 && transaction.contains(action)) {
 
@@ -322,29 +332,86 @@ public class Account{
 
     }
 
-    protected void readAccountsFromFile(JSONObject account){
+    protected final String pathToJsonFile = "C:\\Users\\Nikolay.Nikolov\\IdeaProjects" +
+            "\\Training\\database\\accountsInfo.json";
+    protected File jsonStorage = new File(pathToJsonFile);
+    protected JSONParser jsonParser = new JSONParser();
 
-        JSONObject accountObject = (JSONObject) account.get("account");
+    @SuppressWarnings("unchecked")
+    protected void writeJsonObjectToFile (Object passJsonObject){
 
-        long accId = (long) accountObject.get("account_number_id");
-        String firstName = (String) accountObject.get("first_name");
-        String lastName = (String) accountObject.get("lastName");
-        Double openingBalance = (Double) accountObject.get("opening_balance");
-        Double interestRate = (Double) accountObject.get("interest_rate");
-        String accountType = (String) accountObject.get("account_type");
-        Double currentBalance = (Double) accountObject.get("current_balance");
-        String openingDate = (String) accountObject.get("opening_date");
-        String termDate = (String) accountObject.get("term_date");
+        if (jsonStorage.length() == 0){
 
-        System.out.println(accId + "\n" +
-                firstName + "\n" +
-                lastName + "\n" +
-                openingBalance + "\n" +
-                interestRate + "\n" +
-                accountType + "\n" +
-                currentBalance + "\n" +
-                openingDate + "\n" +
-                termDate + "\n---------------------" );
+            JSONArray accountList = new JSONArray();
+
+            accountList.add(passJsonObject);
+
+            try (FileWriter fileWriter = new FileWriter(pathToJsonFile)) {
+
+                fileWriter.write(accountList.toJSONString());
+                fileWriter.flush();
+
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+        }else{
+
+            try (FileReader fileReader = new FileReader(pathToJsonFile)){
+
+                Object jsonAccount = jsonParser.parse(fileReader);
+                JSONArray accountList = (JSONArray) jsonAccount;
+
+                if (accountList.toString().contains(
+                        passJsonObject.toString()
+                )){
+
+                    System.out.println("Error: Record already exists.");
+
+                }else{
+
+                    accountList.add(passJsonObject);
+
+                    try (FileWriter fileWriter = new FileWriter(pathToJsonFile)) {
+
+                        fileWriter.write(accountList.toJSONString());
+                        fileWriter.flush();
+
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+
+                }
+
+            } catch (IOException | ParseException e) {
+                e.printStackTrace();
+            }
+
+        }
+
+    }
+
+    protected JSONObject getJsonObjectValue(JSONObject account){
+
+        return (JSONObject) account.get("account");
+
+    }
+
+    protected void jsonTransactions(){
+
+        try(FileReader fileReader = new FileReader(pathToJsonFile)) {
+
+            Object readJson = jsonParser.parse(fileReader);
+            JSONArray listOfAccounts = (JSONArray) readJson;
+
+            for (Object listOfAccount : listOfAccounts) {
+                System.out.println(listOfAccount);
+            }
+
+
+        }catch (IOException | ParseException e){
+            e.printStackTrace();
+        }
 
     }
 
