@@ -1,5 +1,7 @@
 package com.company;
 
+import org.json.simple.JSONObject;
+
 import java.sql.SQLException;
 
 public class Main {
@@ -18,18 +20,18 @@ public class Main {
         );
 
         DepositAccount newDepositAccount = new DepositAccount(
-                5,
+                2,
                 "James",
                 "Baucher",
-                99999,
+                357,
                 7.1F
         );
 
-        DepositAccount depositAccountJessica = new DepositAccount(
-                77,
+        DepositAccount newDepositAccount2 = new DepositAccount(
+                3,
                 "Librarian",
                 "Joshua",
-                11111,
+                753,
                 9.3F
         );
 
@@ -39,12 +41,18 @@ public class Main {
 
 //        dataOperations.transaction(1,2, "transfer", 3100);
 
-        dataOperations.writeJsonObjectToFile(depositAccountJessica.createJsonObject());
 
-        dataOperations.jsonTransactions();
+//        dataOperations.writeJsonObjectToFile(newCurrentAccount.createJsonObject());
+//        dataOperations.writeJsonObjectToFile(newDepositAccount.createJsonObject());
+//        dataOperations.writeJsonObjectToFile(newDepositAccount2.createJsonObject());
 
-//        System.out.print(dataOperations.getJsonObjectValue(
-//                newCurrentAccount.createJsonObject()).get("current_balance"));
+        dataOperations.jsonTransactions(1, 3, "transfer", 777);
+//        dataOperations.jsonTransactions(1, 1, "deposit" , 333);
+//        dataOperations.jsonTransactions(3, 3, "withdraw" , 333);
+
+//        System.out.println(dataOperations.getJsonObjectId(
+//                depositAccountJessica.createJsonObject()));
+
 
     } // end of main method
 

@@ -391,26 +391,137 @@ public class Account{
 
     }
 
-    protected JSONObject getJsonObjectValue(JSONObject account){
+    protected Integer getJsonObjectId(JSONObject accounts){
 
-        return (JSONObject) account.get("account");
+        JSONObject account = (JSONObject) accounts.get("account");
+        return (Integer) account.get("account_number_id");
 
     }
 
-    protected void jsonTransactions(){
+    protected final String pathToJsonTransactions = "C:\\Users\\Nikolay.Nikolov\\IdeaProjects" +
+            "\\Training\\database\\jsonTransactions.json";
 
-        try(FileReader fileReader = new FileReader(pathToJsonFile)) {
+    protected File jsonTransactions = new File(pathToJsonTransactions);
 
-            Object readJson = jsonParser.parse(fileReader);
-            JSONArray listOfAccounts = (JSONArray) readJson;
+    protected JSONArray transactions = new JSONArray();
 
-            for (Object listOfAccount : listOfAccounts) {
-                System.out.println(listOfAccount);
+    @SuppressWarnings("unchecked")
+    protected void jsonTransactions(Integer fromAccId, Integer toAccId, String action , double amount){
+
+        if (amount > 0 && transaction.contains(action)){
+
+            try(FileReader fileReader = new FileReader(pathToJsonFile)) {
+
+                Object readJson = jsonParser.parse(fileReader);
+                JSONArray listOfAccounts = (JSONArray) readJson;
+
+                JSONArray updatedAccounts = new JSONArray();
+
+                JSONObject transaction = new JSONObject();
+
+                int transactionId = 0;
+
+                for (int i = 0; i < listOfAccounts.size(); i ++){
+
+                    transactionId ++;
+
+                    JSONObject accounts = (JSONObject) listOfAccounts.get(i);
+                    JSONObject account = (JSONObject) accounts.get("account");
+
+                    if (fromAccId.equals(toAccId) &&
+                            account.get("account_number_id").toString().equals(fromAccId.toString())){
+
+                        switch (action){
+                            case "deposit":
+                                account.put("current_balance", (
+                                        (double)account.get("current_balance") + amount));
+
+                                transaction.put("transaction_id", transactionId);
+                                transaction.put("sender_id", account.get("account_number_id"));
+                                transaction.put("sender_name", (account.get("first_name").toString()
+                                        + " " + account.get("last_name").toString()));
+                                transaction.put("recipient_id", account.get("account_number_id"));
+                                transaction.put("recipient_name", (account.get("first_name").toString()
+                                        + " " + account.get("last_name").toString()));
+                                transaction.put("action", action);
+                                transaction.put("amount", amount);
+                                transaction.put("date", getCurrentDate());
+
+                            break;
+
+                            case "withdraw":
+                                account.put("current_balance", (
+                                        (double)account.get("current_balance") - amount));
+
+                                transaction.put("transaction_id", transactionId);
+                                transaction.put("sender_id", account.get("account_number_id"));
+                                transaction.put("sender_name", (account.get("first_name").toString()
+                                        + " " + account.get("last_name").toString()));
+                                transaction.put("recipient_id", account.get("account_number_id"));
+                                transaction.put("recipient_name", (account.get("first_name").toString()
+                                        + " " + account.get("last_name").toString()));
+                                transaction.put("action", action);
+                                transaction.put("amount", amount);
+                                transaction.put("date", getCurrentDate());
+
+                            break;
+                        }
+
+                    }else if(!fromAccId.equals(toAccId) && action.equals("transfer")) {
+
+                        if (account.get("account_number_id").toString().equals(fromAccId.toString())){
+
+                            account.put("current_balance", (
+                                    (double)account.get("current_balance") - amount));
+
+                        }
+
+                        if (account.get("account_number_id").toString().equals(toAccId.toString())){
+
+                            account.put("current_balance", (
+                                    (double)account.get("current_balance") + amount));
+
+                        }
+
+                    }
+
+                    JSONObject updatedAccount = new JSONObject();
+                    updatedAccount.put("account" , account);
+
+                    updatedAccounts.add(updatedAccount);
+
+                }
+
+                transactions.add(transaction);
+
+                System.out.println(transactions);
+
+                try(FileWriter writeTransaction = new FileWriter(pathToJsonTransactions)){
+
+                    writeTransaction.write(transactions.toJSONString());
+                    writeTransaction.flush();
+
+                }catch (IOException e) {
+                    e.printStackTrace();
+                }
+
+
+                try(FileWriter fileWriter = new FileWriter(pathToJsonFile)) {
+
+                    fileWriter.write(updatedAccounts.toJSONString());
+                    fileWriter.flush();
+
+                }
+                catch(IOException e) {
+                    e.printStackTrace();
+                }
+
+            }catch (IOException | ParseException e){
+                e.printStackTrace();
             }
 
-
-        }catch (IOException | ParseException e){
-            e.printStackTrace();
+        }else {
+            System.out.println("Error: Invalid parameters for this transaction.");
         }
 
     }
