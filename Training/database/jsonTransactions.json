@@ -1,1 +1,1 @@
-[{}]
+[{"date":"26\/03\/2020","amount":777.0,"action":"transfer","sender_name":"Jessica Hey","recipient_name":"James Baucher","sender_id":1,"recipient_id":2},{"date":"26\/03\/2020","amount":555.0,"action":"withdraw","sender_name":"James Baucher","recipient_name":"James Baucher","sender_id":2,"recipient_id":2},{"date":"26\/03\/2020","amount":333.0,"action":"deposit","sender_name":"Joshua Baucher","recipient_name":"Joshua Baucher","sender_id":3,"recipient_id":3}]

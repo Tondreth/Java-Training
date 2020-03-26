@@ -27,7 +27,6 @@ public class Account{
     private String type;
 
     private DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
-//    private DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy hh:mm:ss");
 
     private LocalDateTime getCurrentDate = LocalDateTime.now();
     private String currentDate = formatter.format(getCurrentDate);
@@ -419,11 +418,7 @@ public class Account{
 
                 JSONObject transaction = new JSONObject();
 
-                int transactionId = 0;
-
                 for (int i = 0; i < listOfAccounts.size(); i ++){
-
-                    transactionId ++;
 
                     JSONObject accounts = (JSONObject) listOfAccounts.get(i);
                     JSONObject account = (JSONObject) accounts.get("account");
@@ -436,7 +431,6 @@ public class Account{
                                 account.put("current_balance", (
                                         (double)account.get("current_balance") + amount));
 
-                                transaction.put("transaction_id", transactionId);
                                 transaction.put("sender_id", account.get("account_number_id"));
                                 transaction.put("sender_name", (account.get("first_name").toString()
                                         + " " + account.get("last_name").toString()));
@@ -453,7 +447,6 @@ public class Account{
                                 account.put("current_balance", (
                                         (double)account.get("current_balance") - amount));
 
-                                transaction.put("transaction_id", transactionId);
                                 transaction.put("sender_id", account.get("account_number_id"));
                                 transaction.put("sender_name", (account.get("first_name").toString()
                                         + " " + account.get("last_name").toString()));
@@ -474,12 +467,23 @@ public class Account{
                             account.put("current_balance", (
                                     (double)account.get("current_balance") - amount));
 
+                            transaction.put("sender_id", account.get("account_number_id"));
+                            transaction.put("sender_name", (account.get("first_name").toString()
+                                    + " " + account.get("last_name").toString()));
+
                         }
 
                         if (account.get("account_number_id").toString().equals(toAccId.toString())){
 
                             account.put("current_balance", (
                                     (double)account.get("current_balance") + amount));
+
+                            transaction.put("recipient_id", account.get("account_number_id"));
+                            transaction.put("recipient_name", (account.get("first_name").toString()
+                                    + " " + account.get("last_name").toString()));
+                            transaction.put("action", action);
+                            transaction.put("amount", amount);
+                            transaction.put("date", getCurrentDate());
 
                         }
 
@@ -494,17 +498,40 @@ public class Account{
 
                 transactions.add(transaction);
 
-                System.out.println(transactions);
+                if(jsonTransactions.length() == 0){
 
-                try(FileWriter writeTransaction = new FileWriter(pathToJsonTransactions)){
+                    try(FileWriter writeTransaction = new FileWriter(pathToJsonTransactions)){
 
-                    writeTransaction.write(transactions.toJSONString());
-                    writeTransaction.flush();
+                        writeTransaction.write(transactions.toJSONString());
+                        writeTransaction.flush();
 
-                }catch (IOException e) {
-                    e.printStackTrace();
+                    }catch (IOException e) {
+                        e.printStackTrace();
+                    }
+
+                }else {
+
+                    try(FileReader rewriteTransactions = new FileReader(pathToJsonTransactions)){
+
+                        Object readTransactions = jsonParser.parse(rewriteTransactions);
+                        JSONArray addTransactions  = (JSONArray) readTransactions;
+
+                        addTransactions.add(transaction);
+
+                        try(FileWriter writeAllTransacts = new FileWriter(pathToJsonTransactions)){
+
+                            writeAllTransacts.write(addTransactions.toJSONString());
+                            writeAllTransacts.flush();
+
+                        }catch(IOException e){
+                            e.printStackTrace();
+                        }
+
+                    }catch(IOException e){
+                        e.printStackTrace();
+                    }
+
                 }
-
 
                 try(FileWriter fileWriter = new FileWriter(pathToJsonFile)) {
 
