@@ -1,0 +1,1 @@
+[{"account_type":"current","account_id":1,"date_created":"31\/03\/2020","term_date":"02\/04\/2020","last_name":"Sam","current_balance":555.0,"interest_rate":2.3,"first_name":"Uncle"},{"account_type":"deposit","account_id":4,"date_created":"31\/03\/2020","term_date":"02\/04\/2020","last_name":"Proudmoore","current_balance":333.0,"interest_rate":7.7,"first_name":"Jaina"}]
