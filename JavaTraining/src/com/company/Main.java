@@ -6,27 +6,36 @@ public class Main {
 
     public static void main(String[] args) throws SQLException, ClassNotFoundException {
 
-        Account account1 = new Account(4,
-                "Jaina",
-                "Proudmoore",
-                333,
-                7.7F,
-                "deposit");
-
         StorageH2 h2 = new StorageH2();
         h2.setStorageLocation("jdbc:h2:tcp://localhost/~/test");
-        account1.writeToStorage(h2);
-
-        Account account2 = new Account(1,
-                "Uncle",
-                "Sam",
-                555,
-                2.3F,
-                "current");
 
         StorageJSON json = new StorageJSON();
         json.setStorageLocation("C:\\Users\\Nikolay.Nikolov\\IdeaProjects\\JavaTraining\\storage.json");
-        account1.writeToStorage(json);
+
+        Account test = new Account();
+        test.setAccountId(1);
+        test.setAccountOwnerFirstName("Jessica");
+        test.setAccountOwnerLastName("Stones");
+        test.setAccountType("deposit");
+        test.setCurrentBalance(3597);
+        test.setInterestRate(3.9F);
+        test.setCurrentDate(test.getCurrentDate());
+        test.setTermDate(test.getTermDate());
+
+        test.writeToStorage(h2);
+
+        test.initFromStorage("1", h2);
+        test.writeToStorage(json);
+
+        test.withdraw(1111);
+        test.writeToStorage(json);
+
+        test.deposit(357);
+        test.writeToStorage(json);
+
+
+//        test.getAccInfo();
+
 
     }
 }

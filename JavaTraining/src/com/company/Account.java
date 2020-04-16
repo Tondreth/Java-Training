@@ -10,7 +10,7 @@ public class Account{
         return accountId;
     }
 
-    private void setAccountId(int accountId) {
+    protected void setAccountId(int accountId) {
         this.accountId = accountId;
     }
 
@@ -18,7 +18,7 @@ public class Account{
         return accountOwnerFirstName;
     }
 
-    private void setAccountOwnerFirstName(String accountOwnerFirstName) {
+    protected void setAccountOwnerFirstName(String accountOwnerFirstName) {
         this.accountOwnerFirstName = accountOwnerFirstName;
     }
 
@@ -26,7 +26,7 @@ public class Account{
         return accountOwnerLastName;
     }
 
-    private void setAccountOwnerLastName(String accountOwnerLastName) {
+    protected void setAccountOwnerLastName(String accountOwnerLastName) {
         this.accountOwnerLastName = accountOwnerLastName;
     }
 
@@ -34,7 +34,7 @@ public class Account{
         return currentBalance;
     }
 
-    private void setCurrentBalance(double currentBalance) {
+    protected void setCurrentBalance(double currentBalance) {
         this.currentBalance = currentBalance;
     }
 
@@ -42,7 +42,7 @@ public class Account{
         return interestRate;
     }
 
-    private void setInterestRate(float interestRate) {
+    protected void setInterestRate(float interestRate) {
         this.interestRate = interestRate;
     }
 
@@ -50,7 +50,7 @@ public class Account{
         return accountType;
     }
 
-    private void setAccountType(String accountType) {
+    protected void setAccountType(String accountType) {
         this.accountType = accountType;
     }
 
@@ -58,7 +58,7 @@ public class Account{
         return currentDate;
     }
 
-    private void setCurrentDate(String currentDate) {
+    protected void setCurrentDate(String currentDate) {
         this.currentDate = currentDate;
     }
 
@@ -66,7 +66,7 @@ public class Account{
         return termDate;
     }
 
-    private void setTermDate(String termDate) {
+    protected void setTermDate(String termDate) {
         this.termDate = termDate;
     }
 
@@ -76,32 +76,49 @@ public class Account{
     private double currentBalance;
     private float interestRate;
     private String accountType;
-    private LocalDateTime getCurrentDate = LocalDateTime.now();
+    private LocalDateTime localDate = LocalDateTime.now();
     private DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
-    private String currentDate = formatter.format(getCurrentDate);
-    private String termDate = formatter.format(getCurrentDate.plusDays(2));
+    private String currentDate = formatter.format(localDate);
+    private String termDate = formatter.format(localDate.plusDays(2));
 
-    public Account(int accountId,
-                   String accountOwnerFirstName,
-                   String accountOwnerLastName,
-                   double currentBalance,
-                   float interestRate,
-                   String accountType){
-
-        this.setAccountId(accountId);
-        this.setAccountOwnerFirstName(accountOwnerFirstName);
-        this.setAccountOwnerLastName(accountOwnerLastName);
-        this.setCurrentBalance(currentBalance);
-        this.setInterestRate(interestRate);
-        this.setAccountType(accountType);
-        this.setCurrentDate(getCurrentDate());
-        this.setTermDate(getTermDate());
-
-    }
 
     public void writeToStorage(StorageSelector storage) throws SQLException, ClassNotFoundException {
+
         storage.writeToStorage(this);
+
     }
+
+    public void initFromStorage(String accountNumber,
+                                StorageSelector storage) throws SQLException, ClassNotFoundException {
+
+        storage.initFromStorage(accountNumber, this);
+
+    }
+
+    public void deposit(double amount){
+
+        setCurrentBalance(getCurrentBalance() + amount);
+
+    }
+
+    public void withdraw(double amount){
+
+        setCurrentBalance(getCurrentBalance() - amount);
+
+    }
+
+//    public void getAccInfo(){
+//        System.out.println(
+//            getAccountId() + "\n" +
+//            getAccountOwnerFirstName() + "\n" +
+//            getAccountOwnerLastName() + "\n" +
+//            getCurrentBalance() + "\n" +
+//            getInterestRate() + "\n" +
+//            getAccountType() + "\n" +
+//            getCurrentDate() + "\n" +
+//            getTermDate()
+//        );
+//    }
 
 }
 
